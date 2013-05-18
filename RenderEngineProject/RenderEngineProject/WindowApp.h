@@ -13,6 +13,7 @@
 
 #include <Windows.h>
 #include"InputHandler.h"
+#include"GDIRenderTarget.h"
 
 namespace RenderEngine
 {
@@ -43,6 +44,7 @@ namespace RenderEngine
 		int m_frameHeight;
 
 		InputHandler* m_Input;
+		GDIRenderTarget* m_RenderTarget;
 	};
 
 	static LRESULT CALLBACK WndProc(HWND,UINT,WPARAM,LPARAM);

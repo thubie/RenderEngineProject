@@ -76,11 +76,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Color.h" />
+    <ClInclude Include="GDIRenderTarget.h" />
+    <ClInclude Include="HRTimer.h" />
     <ClInclude Include="InputHandler.h" />
+    <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="WindowApp.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Color.cpp" />
+    <ClCompile Include="GDIRenderTarget.cpp" />
     <ClCompile Include="InputHandler.cpp" />
+    <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="WindowApp.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>

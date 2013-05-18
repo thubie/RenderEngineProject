@@ -14,6 +14,7 @@ namespace RenderEngine
 	{
 		//Set the member class pointers to zero
 		m_Input = nullptr; 
+		m_RenderTarget = nullptr;
 	}
 
 	WindowsApp::WindowsApp(const WindowsApp& other) :
@@ -39,13 +40,20 @@ namespace RenderEngine
 
 		// Create the input object.  This object will be used to handle reading the keyboard input from the user.
 		m_Input = new InputHandler;
-		if(!m_Input)
+		if(m_Input == nullptr)
 		{
 			return false;
 		}
 
 		// Initialize the input object.
 		m_Input->Initialize();
+
+		m_RenderTarget = new GDIRenderTarget(&m_hwnd,m_frameWidth,m_frameHeight);
+		if(m_RenderTarget == nullptr)
+		{
+			return false;
+		}
+		m_RenderTarget->Initialize();
 
 		return true;
 	}
@@ -111,6 +119,8 @@ namespace RenderEngine
 		{
 			return false;
 		}
+
+		m_RenderTarget->Flip();
 
 		//For now true the Renderer->NextFrame() should return true or false.
 		result = true;
