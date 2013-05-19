@@ -15,6 +15,7 @@ namespace RenderEngine
 		//Set the member class pointers to zero
 		m_Input = nullptr; 
 		m_RenderTarget = nullptr;
+		m_rasterizer = nullptr;
 	}
 
 	WindowsApp::WindowsApp(const WindowsApp& other) :
@@ -54,6 +55,15 @@ namespace RenderEngine
 			return false;
 		}
 		m_RenderTarget->Initialize();
+
+		Color* renderTargetBuffer = m_RenderTarget->GetColorBuffer();
+		int stride = m_RenderTarget->GetWidth();
+
+		m_rasterizer = new Rasterizer(renderTargetBuffer,stride);
+		if(m_rasterizer == nullptr)
+		{
+			return false;
+		}
 
 		return true;
 	}
@@ -119,7 +129,12 @@ namespace RenderEngine
 		{
 			return false;
 		}
-
+		Color* renderTargetBuffer = m_RenderTarget->GetColorBuffer();
+		m_rasterizer->SetRenderTargetBuffer(renderTargetBuffer);
+		m_rasterizer->DrawLine(10,10,300,10,Color(0,255,0,255));
+		m_rasterizer->DrawLine(10,10,10,300,Color(0,0,255,255));
+		m_rasterizer->DrawLine(300,10,300,300,Color(255,0,0,255));
+		m_rasterizer->DrawLine(10,300,300,300,Color(255,255,0,255));
 		m_RenderTarget->Flip();
 
 		//For now true the Renderer->NextFrame() should return true or false.

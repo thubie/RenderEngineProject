@@ -18,27 +18,26 @@ namespace RenderEngine
 		m_a = a;
 	}
 
-	///*inline*/ Color &Color::operator=(const Color& rhs)
-	//{
-	//	m_r = rhs.m_r;
-	//	m_g = rhs.m_g;
-	//	m_b = rhs.m_b;
-	//	m_a = rhs.m_a;
+	Color &Color::operator=(const Color &rhs)
+	{
+		this->m_r = rhs.m_r;
+		this->m_g = rhs.m_g;
+		this->m_b = rhs.m_b;
+		this->m_a = rhs.m_a;
+		return *this;
+	}
 
-	//	return *this;
-	//}
-
-	inline Color Color::operator+(const Color& rhs) const
+	Color Color::operator+(const Color& rhs) const
 	{
 		return Color(m_r + rhs.m_r, m_g + rhs.m_g, m_b + rhs.m_b, m_a + rhs.m_a);
 	}
 
-	inline Color Color::operator-(const Color& rhs) const
+	Color Color::operator-(const Color& rhs) const
 	{
 		return Color(m_r + rhs.m_r, m_g + rhs.m_g, m_b + rhs.m_b, m_a + rhs.m_a);
 	}
 
-	inline Color &Color::operator+=(const Color& rhs)
+	Color &Color::operator+=(const Color& rhs)
 	{
 		m_r += rhs.m_r;
 		m_g += rhs.m_g;
@@ -48,7 +47,7 @@ namespace RenderEngine
 		return *this;
 	}
 
-	inline Color &Color::operator*=(float scalar)
+	Color &Color::operator*=(float scalar)
 	{
 		*this = scalar * *this;
 		return *this;
@@ -56,19 +55,19 @@ namespace RenderEngine
 
 	
 
-	inline Color operator+(const Color &color1,const Color &color2)
+	Color operator+(const Color &color1,const Color &color2)
 	{
 		return Color(color1.m_r + color2.m_r, color1.m_g + color2.m_g,
 			color1.m_b + color2.m_b, color1.m_a + color2.m_a);
 	}
 
-	inline Color operator-(const Color &color1,const Color &color2)
+	Color operator-(const Color &color1,const Color &color2)
 	{
 		return Color(color1.m_r - color2.m_r, color1.m_g - color2.m_g,
 			color1.m_b - color2.m_b, color1.m_a - color2.m_a);
 	}
 
-	inline Color operator*(float scalar, const Color &color)
+	Color operator*(float scalar, const Color &color)
 	{
 		unsigned char r = scalar * color.m_r;
 		unsigned char g = scalar * color.m_g;
@@ -78,7 +77,7 @@ namespace RenderEngine
 		return Color(r,g,b,a);
 	}
 
-	inline Color operator*(const Color &color1, const Color &color2)
+	Color operator*(const Color &color1, const Color &color2)
 	{
 		unsigned char r = color1.m_r * color2.m_r;
 		unsigned char g = color1.m_g * color2.m_g;
@@ -88,7 +87,7 @@ namespace RenderEngine
 		return Color(r,g,b,a);
 	}
 
-	inline Color operator/(const Color &color1,float scalar)
+	Color operator/(const Color &color1,float scalar)
 	{
 		//reciprical mul is faster then divide
 		scalar = 1.0f / scalar;

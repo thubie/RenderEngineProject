@@ -14,6 +14,7 @@
 #include <Windows.h>
 #include"InputHandler.h"
 #include"GDIRenderTarget.h"
+#include"Rasterizer.h"
 
 namespace RenderEngine
 {
@@ -45,6 +46,8 @@ namespace RenderEngine
 
 		InputHandler* m_Input;
 		GDIRenderTarget* m_RenderTarget;
+		Rasterizer* m_rasterizer;
+
 	};
 
 	static LRESULT CALLBACK WndProc(HWND,UINT,WPARAM,LPARAM);
