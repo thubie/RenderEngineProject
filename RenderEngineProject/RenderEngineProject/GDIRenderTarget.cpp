@@ -62,15 +62,17 @@ namespace RenderEngine
 	void GDIRenderTarget::Shutdown()
 	{
 		//Check if we allocated the m_Vpage
-		if(m_VPage1)
+		if(m_VPage1 != nullptr)
 		{
 			delete[] m_VPage1;
+			m_VPage1 = 0;
 		}
 
-		if(m_VPage2)
+		if(m_VPage2 != nullptr)
 		{
 			delete[] m_VPage1;
-		}
+			m_VPage2 = 0;
+		}		
 	}
 
 	void GDIRenderTarget::Flip()

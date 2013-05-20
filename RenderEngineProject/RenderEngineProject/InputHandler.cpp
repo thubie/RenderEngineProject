@@ -12,7 +12,7 @@ namespace RenderEngine
 	{}
 
 	//Initialize the inputhandler
-	void InputHandler::Initialize()
+	bool InputHandler::Initialize()
 	{
 		int i;
 
@@ -22,7 +22,7 @@ namespace RenderEngine
 			m_keys[i] = false;
 		}
 
-		return;
+		return true;
 	}
 
 	void InputHandler::KeyDown(unsigned int input)

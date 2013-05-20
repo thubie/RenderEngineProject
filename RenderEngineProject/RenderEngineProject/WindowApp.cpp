@@ -10,19 +10,17 @@
 
 namespace RenderEngine
 {
+
 	WindowsApp::WindowsApp() : m_frameWidth(1280), m_frameHeight(720)
 	{
 		//Set the member class pointers to zero
 		m_Input = nullptr; 
 		m_RenderTarget = nullptr;
-		m_rasterizer = nullptr;
 	}
 
 	WindowsApp::WindowsApp(const WindowsApp& other) :
 		m_frameWidth(other.m_frameWidth),m_frameHeight(other.m_frameHeight)
-	{
-		//Deep copy to make sure we dont get null pointer bullshit
-	}
+	{}
 
 	WindowsApp::~WindowsApp()
 	{}
@@ -42,40 +40,39 @@ namespace RenderEngine
 		// Create the input object.  This object will be used to handle reading the keyboard input from the user.
 		m_Input = new InputHandler;
 		if(m_Input == nullptr)
-		{
 			return false;
-		}
-
+		
 		// Initialize the input object.
 		m_Input->Initialize();
 
-		m_RenderTarget = new GDIRenderTarget(&m_hwnd,m_frameWidth,m_frameHeight);
-		if(m_RenderTarget == nullptr)
-		{
+		//Create the renderer object
+		m_renderer = new Renderer(&m_hwnd,m_frameWidth,m_frameHeight);
+		if(m_renderer == nullptr)
 			return false;
-		}
-		m_RenderTarget->Initialize();
 
-		Color* renderTargetBuffer = m_RenderTarget->GetColorBuffer();
-		int stride = m_RenderTarget->GetWidth();
-
-		m_rasterizer = new Rasterizer(renderTargetBuffer,stride);
-		if(m_rasterizer == nullptr)
-		{
-			return false;
-		}
+		result = m_renderer->Initialize();
+		if(!result)
+			return false; //if initialize failed
 
 		return true;
 	}
 
 	void WindowsApp::Shutdown()
 	{
+		if(m_renderer != 0)
+		{
+			m_renderer->Shutdown();
+			delete m_renderer;
+			m_renderer = 0;
+		}
+
 		//Release member class objects here
-		if(m_Input != nullptr)
+		if(m_Input != 0)
 		{
 			delete m_Input;
-			m_Input = nullptr;
+			m_Input = 0;
 		}
+
 		//Shutdown the window.
 		ShutdownWindows();
 	}
@@ -126,22 +123,16 @@ namespace RenderEngine
 
 		//Check if the user pressed escape and wants to exit the application.
 		if(m_Input->IsKeyDown(VK_ESCAPE))
-		{
 			return false;
-		}
-		Color* renderTargetBuffer = m_RenderTarget->GetColorBuffer();
-		m_rasterizer->SetRenderTargetBuffer(renderTargetBuffer);
-		m_rasterizer->DrawLine(10,10,300,10,Color(0,255,0,255));
-		m_rasterizer->DrawLine(10,10,10,300,Color(0,0,255,255));
-		m_rasterizer->DrawLine(300,10,300,300,Color(255,0,0,255));
-		m_rasterizer->DrawLine(10,300,300,300,Color(255,255,0,255));
-		m_RenderTarget->Flip();
-
-		//For now true the Renderer->NextFrame() should return true or false.
-		result = true;
-		return result;
+		
+		result = m_renderer->NextFrame();
+		if(!result)
+			return false; //Rendering the next frame failed.
+		
+		return true;
 	}
 
+	//Handle other messages from the message pump
 	LRESULT CALLBACK WindowsApp::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 	{
 		switch(umsg)
@@ -242,7 +233,6 @@ namespace RenderEngine
 		return;
 	}
 
-
 	LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 	{
 		switch(umessage)
@@ -268,8 +258,6 @@ namespace RenderEngine
 			}
 		}
 	}
-
-
 
 }
 

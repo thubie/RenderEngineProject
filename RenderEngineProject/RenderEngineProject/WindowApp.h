@@ -13,8 +13,7 @@
 
 #include <Windows.h>
 #include"InputHandler.h"
-#include"GDIRenderTarget.h"
-#include"Rasterizer.h"
+#include"Renderer.h"
 
 namespace RenderEngine
 {
@@ -45,6 +44,7 @@ namespace RenderEngine
 		int m_frameHeight;
 
 		InputHandler* m_Input;
+		Renderer*  m_renderer;
 		GDIRenderTarget* m_RenderTarget;
 		Rasterizer* m_rasterizer;
 

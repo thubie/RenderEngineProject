@@ -17,8 +17,8 @@ namespace RenderEngine
 		InputHandler(const InputHandler& other);
 		~InputHandler();
 
-		void Initialize();
-
+		bool Initialize();
+	
 		void KeyDown(unsigned int);
 		void KeyUp(unsigned int);
 
