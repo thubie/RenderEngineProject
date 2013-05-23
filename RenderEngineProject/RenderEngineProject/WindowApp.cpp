@@ -11,7 +11,7 @@
 namespace RenderEngine
 {
 
-	WindowsApp::WindowsApp() : m_frameWidth(1024), m_frameHeight(576)
+	WindowsApp::WindowsApp() : m_frameWidth(1280), m_frameHeight(720)
 	{
 		//Set the member class pointers to zero
 		m_Input = nullptr; 

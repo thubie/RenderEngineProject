@@ -32,6 +32,8 @@ namespace RenderEngine
 		void setFilename(char* filename);
 		bool ProcessFile();
 
+		std::vector<Model>* GetScene();
+		
 	private:
 		void GetDataCount();
 		bool ReadInfileAndElementCounts();
@@ -47,7 +49,7 @@ namespace RenderEngine
 		std::vector<Vector3D> normalList;
 		std::vector<TexCoord> texCoordList;
 		std::vector<Model> sceneObjects;
+		Vector4D* meshData;
 		friend class Model;
-
 	};
 }

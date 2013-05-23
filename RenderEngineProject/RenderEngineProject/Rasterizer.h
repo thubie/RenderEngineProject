@@ -13,8 +13,8 @@ namespace RenderEngine
 		Rasterizer(const Rasterizer &other);
 		void SetRenderTargetBuffer(Color* renderTarget);
 		void DrawLine(int x1,int y1,int x2,int y2,Color color);
-		void DrawTriangle(Vertex *v1, Vertex *v2,Vertex *v3);
-
+		void DrawTriangle(Vertex *v0, Vertex *v1,Vertex *v2);
+		void DrawTriangleLine(Vertex *v0, Vertex *v1,Vertex *v2);
 	private:
 		//Barycentric calculations
 		float f01(float x, float y, float x0, float y0, float x1, float y1);

@@ -22,6 +22,81 @@ namespace RenderEngine
 		m_renderTargetBuffer = renderTargetBuffer;
 	}
 
+	void Rasterizer::DrawLine(int x1,int y1,int x2,int y2,Color color)
+	{
+		int dx,dy;
+		int balance;
+		int incy,incx;
+		int x,y;
+
+		if (x2 >= x1)
+		{
+			dx = x2 - x1;
+			incx = 1;
+		}
+		else
+		{
+			dx = x1 - x2;
+			incx = -1;
+		}
+
+		if (y2 >= y1)
+		{
+			dy = y2 - y1;
+			incy = 1;
+		}
+		else
+		{
+			dy = y1 - y2;
+			incy = -1;
+		}
+
+		x = x1;
+		y = y1;
+
+		*(m_renderTargetBuffer + y * m_stride + x) = color;
+
+		if (dx >= dy)
+		{
+			dy <<= 1;
+			balance = dy - dx;
+			dx <<= 1;
+
+			while (x != x2)
+			{
+				//SetPixel(color,x,y);
+				*(m_renderTargetBuffer + y * m_stride + x) = color;
+				if (balance >= 0)
+				{
+					y += incy;
+					balance -= dx;
+				}
+				balance += dy;
+				x += incx;
+			} 
+			*(m_renderTargetBuffer + y * m_stride + x) = color;
+		}
+		else
+		{
+			dx <<= 1;
+			balance = dx - dy;
+			dy <<= 1;
+
+			while (y != y2)
+			{
+				*(m_renderTargetBuffer + y * m_stride + x) = color;
+				if (balance >= 0)
+				{
+					x += incx;
+					balance -= dy;
+				}
+				balance += dx;
+				y += incy;
+			} 
+			*(m_renderTargetBuffer + y * m_stride + x) = color;
+		}
+		*(m_renderTargetBuffer + y * m_stride + x) = color;
+	}
 
 	void Rasterizer::DrawTriangle(Vertex *v0, Vertex *v1,Vertex *v2)
 	{
@@ -34,6 +109,11 @@ namespace RenderEngine
 		float y0 = v0->position.m_y;
 		float y1 = v1->position.m_y;
 		float y2 = v2->position.m_y;
+
+		//Backface culling
+		float area = 0.5f * ((x0 - x1) * (y2 - y0) - (y0 - y2) * (x2 - x0));
+		if(area >= 0)
+			return;
 
 		float alpha;
 		float beta;
@@ -79,6 +159,26 @@ namespace RenderEngine
 		}
 	}
 
+	void Rasterizer::DrawTriangleLine(Vertex *v0,Vertex *v1,Vertex *v2)
+	{
+		
+		int x1 = v0->position.m_x;
+		int	x2 = v1->position.m_x;
+		int	x3 = v2->position.m_x;
+
+		int y1 = v0->position.m_y;
+		int y2 = v1->position.m_y;
+		int y3 = v2->position.m_y;
+
+		float area = 0.5f * ((x1 - x2) * (y3 - y1) - (y1 - y2) * (x3 - x1));
+		if(area >= 0)
+			return;
+
+		Color line(255,255,0,0);
+		DrawLine(x1,y1,x2,y2,line);
+		DrawLine(x2,y2,x3,y3,line);
+		DrawLine(x3,y3,x1,y1,line);
+	}
 
 	inline float Rasterizer::f01(float x, float y, float x0, float y0, float x1, float y1)
 	{

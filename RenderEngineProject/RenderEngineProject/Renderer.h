@@ -30,10 +30,9 @@ namespace RenderEngine
 		HWND *m_hwnd;
 		Camera *m_camera;
 		GDIRenderTarget *m_renderTarget;
-
+		std::vector<Model>* m_scene;
 		Rasterizer *m_rasterizer;
 		Matrix4x4* m_viewTransMatrix;
 		ImporterOBJ* m_importer;
-		Vertex* m_testGeometry;
 	};
 }

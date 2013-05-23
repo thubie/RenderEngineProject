@@ -185,117 +185,152 @@ namespace RenderEngine
 	bool ImporterOBJ::MakeScene()
 	{
 		int modelCount = objectDataList.size();
-		int i,j,k;
+		int i,j,k;		
+		Vector4D* vPos = nullptr;
+		Vector3D* nVec = nullptr;
+		TexCoord* texCoord = nullptr;
+
 		Vertex* vertices = nullptr;
 		Face* indices = nullptr;
 
+		Vertex verTemp;
 		Vector4D vTemp;
 		Vector3D nTemp;
 		TexCoord tTemp;
-
+		Face fTemp;     
+		ObjectData obTemp; // debug
 		int faceCount = 0;
 		int vertexCount = 0;
-		int prevVertexCount = 0;
-		int vIndex = 0;
-		int tIndex = 0;
-		int nIndex = 0;
+		int normalCount = 0;
+		int texCoordCount = 0;
+		int lastVertexIndex = 0;
+		int lastNormalIndex = 0;
+		int lastTexCoordIndex = 0;
+
+		int indexPos1;
+		int indexTCoord1;
+		int indexNorm1;
+
+		int indexPos2;
+		int indexTCoord2;
+		int indexNorm2;
+
+		int indexPos3;
+		int indexTCoord3;
+		int indexNorm3;
 		
-		//Fill the models with the mesh data.
+		//Allocate space for objects temp mesh data
+		vertexCount = vertexList.size();
+		texCoordCount = texCoordList.size();
+		normalCount = normalList.size();
+		
+		vPos = new Vector4D[vertexCount];
+		if(vPos == nullptr)
+			return false;
+		nVec = new Vector3D[normalCount];
+		if(nVec == nullptr)
+			return false;
+		texCoord = new TexCoord[texCoordCount];
+		if(texCoord == nullptr)
+			return false;
+		
+		//Fill the arrays with data.
+		for(j = 0; j < vertexCount; ++j)
+		{
+			vPos[j] = vertexList[j];
+		}
+
+		for(j = 0; j < texCoordCount; ++j)
+		{
+			texCoord[j] = texCoordList[j];
+		}
+			
+		for(j = 0; j < normalCount; ++j)
+		{
+			nVec[j] = normalList[j];
+		}
+
 		for(i = 0; i < modelCount; ++i)
 		{
-			//Create the models and allocate space for the mesh data.
+			obTemp = objectDataList[i];
 			sceneObjects.push_back(Model());
-			vertexCount = objectDataList[i].vertexCount;
-			sceneObjects[i].vertices =	new Vertex[vertexCount];
-			if(sceneObjects[i].vertices == nullptr)
-				return false;
-			
-			faceCount = objectDataList[i].faceCount;
-			sceneObjects[i].faces = new Face[faceCount];
-			if(sceneObjects[i].faces == nullptr)
-				return false;
+			faceCount = obTemp.faceCount;
+			vertexCount = obTemp.vertexCount;
 
-			sceneObjects[i].faceCount = faceCount;
+			indices = new Face[faceCount];
+			if(indices == nullptr)
+				return false;
+			vertices =	new Vertex[vertexCount];
+			if(vertices == nullptr)
+				return false;
 
 			for(j = 0; j < faceCount; ++j)
 			{
-				//Fill the vertex data and indices for vertex one
-				vIndex = objectDataList[i].faceList[i].indices[j][0] - 1;
-				tIndex = objectDataList[i].faceList[i].indices[j][1] - 1;
-				nIndex = objectDataList[i].faceList[i].indices[j][2] - 1;
+				//Fill the mesh data of the first vertex
+				indexPos1 = obTemp.faceList[j].indices[0][0] - 1;
+				indexTCoord1 = obTemp.faceList[j].indices[0][1] - 1;
+				indexNorm1 = obTemp.faceList[j].indices[0][2] - 1;
 				
-				vTemp = vertexList[vIndex];
-				nTemp = normalList[nIndex];
-				tTemp = texCoordList[tIndex];
-				vIndex = vIndex - prevVertexCount;
+				verTemp.position = vertexList[indexPos1];
+				verTemp.normal = normalList[indexNorm1];
+				verTemp.uv = texCoordList[indexTCoord1];
+				vertices[indexPos1 - lastVertexIndex] = verTemp;
 
-				sceneObjects[i].vertices[vIndex].position.m_x = vTemp.m_x;
-				sceneObjects[i].vertices[vIndex].position.m_y = vTemp.m_y;
-				sceneObjects[i].vertices[vIndex].position.m_z = vTemp.m_z;
+				//Fill the mesh data of the second vertex
+				indexPos2 = obTemp.faceList[j].indices[1][0] - 1;
+				indexTCoord2 = obTemp.faceList[j].indices[1][1] - 1;
+				indexNorm2 = obTemp.faceList[j].indices[1][2] - 1;
+				
+				
+				verTemp.position = vertexList[indexPos2];
+				verTemp.normal = normalList[indexNorm2];
+				verTemp.uv = texCoordList[indexTCoord2];
+				vertices[indexPos2 - lastVertexIndex] = verTemp;
 
-				sceneObjects[i].vertices[vIndex].uv.u = tTemp.u;
-				sceneObjects[i].vertices[vIndex].uv.v = tTemp.v;
+				//Fill the mesh data of the third vertex
+				indexPos3 = obTemp.faceList[j].indices[2][0]  - 1;
+				indexTCoord3 = obTemp.faceList[j].indices[2][1] - 1;
+				indexNorm3 = obTemp.faceList[j].indices[2][2] - 1;
+				
 
-				sceneObjects[i].vertices[vIndex].normal.m_x = nTemp.m_x;
-				sceneObjects[i].vertices[vIndex].normal.m_y = nTemp.m_y;
-				sceneObjects[i].vertices[vIndex].normal.m_z = nTemp.m_z;
-
-				sceneObjects[i].faces[j].indices[0] = vIndex;
-
-				//Fill the vertex data and indices for vertex two
-				vIndex = objectDataList[i].faceList[i].indices[j][1] - 1;
-				tIndex = objectDataList[i].faceList[i].indices[j][1] - 1;
-				nIndex = objectDataList[i].faceList[i].indices[j][1] - 1;
-
-				vTemp = vertexList[vIndex];
-				nTemp = normalList[nIndex];
-				tTemp = texCoordList[tIndex];
-				vIndex = vIndex - prevVertexCount;
-
-				sceneObjects[i].vertices[vIndex].position.m_x = vTemp.m_x;
-				sceneObjects[i].vertices[vIndex].position.m_y = vTemp.m_y;
-				sceneObjects[i].vertices[vIndex].position.m_z = vTemp.m_z;
-
-				sceneObjects[i].vertices[vIndex].uv.u = tTemp.u;
-				sceneObjects[i].vertices[vIndex].uv.v = tTemp.v;
-
-				sceneObjects[i].vertices[vIndex].normal.m_x = nTemp.m_x;
-				sceneObjects[i].vertices[vIndex].normal.m_y = nTemp.m_y;
-				sceneObjects[i].vertices[vIndex].normal.m_z = nTemp.m_z;
-
-				sceneObjects[i].faces[j].indices[1] = vIndex;
-
-				//Fill the vertex data and indices for vertex three
-				vIndex = objectDataList[i].faceList[i].indices[j][2] - 1;
-				tIndex = objectDataList[i].faceList[i].indices[j][2] - 1;
-				nIndex = objectDataList[i].faceList[i].indices[j][2] - 1;
-
-				vTemp = vertexList[vIndex];
-				nTemp = normalList[nIndex];
-				tTemp = texCoordList[tIndex];
-				vIndex = vIndex - prevVertexCount;
-
-				sceneObjects[i].vertices[vIndex].position.m_x = vTemp.m_x;
-				sceneObjects[i].vertices[vIndex].position.m_y = vTemp.m_y;
-				sceneObjects[i].vertices[vIndex].position.m_z = vTemp.m_z;
-
-				sceneObjects[i].vertices[vIndex].uv.u = tTemp.u;
-				sceneObjects[i].vertices[vIndex].uv.v = tTemp.v;
-
-				sceneObjects[i].vertices[vIndex].normal.m_x = nTemp.m_x;
-				sceneObjects[i].vertices[vIndex].normal.m_y = nTemp.m_y;
-				sceneObjects[i].vertices[vIndex].normal.m_z = nTemp.m_z;
-
-				sceneObjects[i].faces[j].indices[2] = vIndex;
+				verTemp.position = vertexList[indexPos3];
+				verTemp.normal = normalList[indexNorm3];
+				verTemp.uv = texCoordList[indexTCoord3];
+				vertices[indexPos3 - lastVertexIndex] = verTemp;
+			
+				indices[j].indices[0] = indexPos1;
+				indices[j].indices[1] = indexPos2;
+				indices[j].indices[2] = indexPos3;
 			}
-			prevVertexCount = vertexCount;
+			
+			sceneObjects[i].faceCount = faceCount;
+			sceneObjects[i].faces = indices;
+			sceneObjects[i].vertices = vertices;
+			
+			
+			lastVertexIndex += vertexCount;
+			lastNormalIndex += normalCount;
+			lastTexCoordIndex += texCoordCount;
 		}
+		
+		//release mesh data
+		if(vPos != nullptr)
+				delete[] vPos;
+
+		if(nVec != nullptr)
+			delete[] nVec;
+
+		if(texCoord != nullptr)
+			delete[] texCoord;
+		
 
 		return true;
 	}
 
-
-
+	std::vector<Model>* ImporterOBJ::GetScene()
+	{
+		return &sceneObjects;
+	}
 
 
 }
