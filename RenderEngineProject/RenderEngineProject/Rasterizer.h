@@ -16,6 +16,10 @@ namespace RenderEngine
 		void DrawTriangle(Vertex *v1, Vertex *v2,Vertex *v3);
 
 	private:
+		//Barycentric calculations
+		float f01(float x, float y, float x0, float y0, float x1, float y1);
+		float f12(float x, float y, float x0, float y0, float x1, float y1);
+		float f20(float x, float y, float x0, float y0, float x1, float y1);
 
 		Color* m_renderTargetBuffer;
 		int m_stride;

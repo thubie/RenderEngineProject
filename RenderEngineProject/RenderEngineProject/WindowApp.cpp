@@ -11,7 +11,7 @@
 namespace RenderEngine
 {
 
-	WindowsApp::WindowsApp() : m_frameWidth(1280), m_frameHeight(720)
+	WindowsApp::WindowsApp() : m_frameWidth(1024), m_frameHeight(576)
 	{
 		//Set the member class pointers to zero
 		m_Input = nullptr; 
@@ -194,8 +194,8 @@ namespace RenderEngine
 		RegisterClassEx(&wc);
 	
 		//set it to 1280x720 resolution.
-		screenWidth  = 1280;
-		screenHeight = 720;
+		screenWidth  = m_frameWidth;
+		screenHeight = m_frameHeight;
 
 		// Place the window in the middle of the screen.
 		posX = (GetSystemMetrics(SM_CXSCREEN) - screenWidth)  / 2;

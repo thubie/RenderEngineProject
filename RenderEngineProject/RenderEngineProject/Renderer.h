@@ -4,7 +4,7 @@
 #include"GDIRenderTarget.h"
 #include"Rasterizer.h"
 #include"Camera.h"
-
+#include"ImporterOBJ.h"
 
 namespace RenderEngine
 {
@@ -30,8 +30,10 @@ namespace RenderEngine
 		HWND *m_hwnd;
 		Camera *m_camera;
 		GDIRenderTarget *m_renderTarget;
+
 		Rasterizer *m_rasterizer;
 		Matrix4x4* m_viewTransMatrix;
+		ImporterOBJ* m_importer;
 		Vertex* m_testGeometry;
 	};
 }

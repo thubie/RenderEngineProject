@@ -81,10 +81,12 @@
     <ClInclude Include="Color.h" />
     <ClInclude Include="GDIRenderTarget.h" />
     <ClInclude Include="HRTimer.h" />
+    <ClInclude Include="ImporterOBJ.h" />
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InputHandler.h" />
     <ClInclude Include="LinearMath.h" />
     <ClInclude Include="Matrix4x4.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="PixelProcessor.h" />
     <ClInclude Include="Rasterizer.h" />
     <ClInclude Include="Renderer.h" />
@@ -100,9 +102,11 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="GDIRenderTarget.cpp" />
+    <ClCompile Include="ImporterOBJ.cpp" />
     <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="LinearMath.cpp" />
     <ClCompile Include="Matrix4x4.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Rasterizer.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderTarget.cpp" />

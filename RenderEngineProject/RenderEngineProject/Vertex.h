@@ -5,16 +5,19 @@
 
 namespace RenderEngine
 {
-	
+	struct TexCoord
+	{
+		float u;
+		float v;
+	};
+
 	struct Vertex
 	{
-		Vertex();
-		Vertex(Vector4D position,Color diffuse);
-		Vertex(const Vertex& other);
-
-		Vector4D m_position;
-		Color m_diffuse;
-		float m_perW;
+		Vector4D position;
+		Vector3D normal;
+		Color  diffuse;
+		TexCoord uv;
+		float perW;
 	};
 	
 }

@@ -7,6 +7,7 @@ namespace RenderEngine
 		m_rasterizer = nullptr;
 		m_renderTarget = nullptr;
 		m_camera = nullptr;
+		m_importer = nullptr;
 	}
 
 	Renderer::Renderer(const Renderer& other) : m_hwnd(other.m_hwnd), m_frameWidth(other.m_frameWidth), m_frameHeight(other.m_frameHeight) 
@@ -35,11 +36,11 @@ namespace RenderEngine
 			return false;
 		}
 
-
+			
 		//camera data and initialization  encapsulate and put in windowapp
-		Vector3D viewTarget(0.0f,0.0f,-3.0f);
+		Vector3D viewTarget(0.0f,0.0f,0.0f);
 		Vector3D upDirection(0.0f,1.0f,0.0f); 
-		Vector3D cameraPosition(0.0,1.0,4.5);
+		Vector3D cameraPosition(0.0,0.0,3.0);
 
 		float fov = PI / 2.0f;
 		float aspectRatio = 16.0f / 9.0f;
@@ -54,6 +55,13 @@ namespace RenderEngine
 		m_camera->Initialize();
 		m_viewTransMatrix = m_camera->ComputeViewTransformMatrix();
 
+		m_importer = new ImporterOBJ("testScene2.obj");
+		if(m_importer == nullptr)
+		{
+			return false;
+		}
+		m_importer->ProcessFile();
+
 		MakeTestScene();
 
 		return true;
@@ -61,14 +69,16 @@ namespace RenderEngine
 
 	void Renderer::MakeTestScene()
 	{
-		m_testGeometry = new Vertex[3];
-		m_testGeometry[0].m_position = Vector4D(-2.0f,0.2f,3.0f,1);
-		m_testGeometry[1].m_position = Vector4D( 2.0f,0.2f,3.0f,1);
-		m_testGeometry[2].m_position = Vector4D( 0.0f,1.2f,3.0f,1);
+		m_testGeometry = new Vertex[4];
+		m_testGeometry[0].position = Vector4D(-1.0f, 1.0f, 1.5f, 1);
+		m_testGeometry[1].position = Vector4D(-1.0f, -1.0f, 1.5f, 1);
+		m_testGeometry[2].position = Vector4D( 1.0f, -1.0f, 1.5f, 1);
+		m_testGeometry[3].position = Vector4D( 1.0f, 1.0f, 1.5f, 1);
 
-		m_testGeometry[0].m_diffuse.SetColor(250,0,0,255); 
-		m_testGeometry[1].m_diffuse.SetColor(0,250,0,255);
-		m_testGeometry[2].m_diffuse.SetColor(0,0,250,255);
+		m_testGeometry[0].diffuse.SetColor(255,0,0,0); 
+		m_testGeometry[1].diffuse.SetColor(0,255,0,0);
+		m_testGeometry[2].diffuse.SetColor(0,0,255,0);
+		m_testGeometry[3].diffuse.SetColor(255,255,0,0);
 
 	}
 
@@ -98,37 +108,34 @@ namespace RenderEngine
 	
 	void Renderer::ProcessGeometry()
 	{
-		/*Color* renderTargetBuffer = m_renderTarget->GetColorBuffer();
-		m_rasterizer->SetRenderTargetBuffer(renderTargetBuffer);
-		m_rasterizer->DrawLine(10,10,300,10,Color(0,255,0,255));
-		m_rasterizer->DrawLine(10,10,10,300,Color(0,0,255,255));
-		m_rasterizer->DrawLine(300,10,300,300,Color(255,0,0,255));
-		m_rasterizer->DrawLine(10,300,300,300,Color(255,255,0,255));
-		m_renderTarget->Flip();*/
-
 		Matrix4x4* viewTransform = m_camera->ComputeViewTransformMatrix();
 		Matrix4x4* viewportMatrix = m_camera->GetViewportMatrix();
 
-
-		Vertex endpoints[3];
+		Vertex endpoints[4];
 		endpoints[0] = m_testGeometry[0];
 		endpoints[1] = m_testGeometry[1];
 		endpoints[2] = m_testGeometry[2];
+		endpoints[3] = m_testGeometry[3];
 
-		endpoints[0].m_position = Vec4MultiMat4x4(*viewTransform,m_testGeometry[0].m_position);
-		endpoints[1].m_position = Vec4MultiMat4x4(*viewTransform,m_testGeometry[1].m_position);
-		endpoints[2].m_position = Vec4MultiMat4x4(*viewTransform,m_testGeometry[2].m_position);
+		endpoints[0].position = Vec4MultiMat4x4(*viewTransform,m_testGeometry[0].position);
+		endpoints[1].position = Vec4MultiMat4x4(*viewTransform,m_testGeometry[1].position);
+		endpoints[2].position = Vec4MultiMat4x4(*viewTransform,m_testGeometry[2].position);
+		endpoints[3].position = Vec4MultiMat4x4(*viewTransform,m_testGeometry[3].position);
 
-
-		for(int i = 0; i < 3; ++i)
+		for(int i = 0; i < 4; ++i)
 		{
-			endpoints[i].m_position = endpoints[i].m_position / endpoints[i].m_position.m_w;
-			endpoints[i].m_position = Vec4MultiMat4x4(*viewportMatrix,endpoints[i].m_position);
+			endpoints[i].perW /= endpoints[i].position.m_w;
+			endpoints[i].position = endpoints[i].position / endpoints[i].position.m_w;
+			//endpoints[i].diffuse.m_r /= endpoints[i].m_perW;
+			//endpoints[i].diffuse.m_g /= endpoints[i].m_perW;
+			//endpoints[i].diffuse.m_b /= endpoints[i].m_perW;
+			endpoints[i].position = Vec4MultiMat4x4(*viewportMatrix,endpoints[i].position);
 		}
 
 		Color* renderTargetBuffer = m_renderTarget->GetColorBuffer();
 		m_rasterizer->SetRenderTargetBuffer(renderTargetBuffer);
-		m_rasterizer->DrawTriangle(&endpoints[0],&endpoints[1],&endpoints[2]);
+		m_rasterizer->DrawTriangle(&endpoints[2],&endpoints[0],&endpoints[1]);
+		m_rasterizer->DrawTriangle(&endpoints[0],&endpoints[2],&endpoints[3]);
 		m_renderTarget->Flip();
 	}
 }
