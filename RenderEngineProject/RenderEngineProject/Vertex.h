@@ -13,6 +13,11 @@ namespace RenderEngine
 
 	struct Vertex
 	{
+	public:
+		Vertex()
+		{
+			perW = 1.0f;
+		};
 		Vector4D position;
 		Vector3D normal;
 		Color  diffuse;

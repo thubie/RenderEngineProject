@@ -4,7 +4,7 @@
 
 namespace RenderEngine
 {
-	extern const float PI;
+	extern const double PI;
 
 	class Camera
 	{

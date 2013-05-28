@@ -72,9 +72,7 @@ namespace RenderEngine
 		}
 		fin.close();
 		objectLineStart.push_back(startline);
-		objectListSize = objectDataList.size();	
-
-		
+		objectListSize = objectDataList.size();		
 		return true;
 	}
 
@@ -304,6 +302,7 @@ namespace RenderEngine
 			}
 			
 			sceneObjects[i].faceCount = faceCount;
+			sceneObjects[i].vertexCount = vertexCount;
 			sceneObjects[i].faces = indices;
 			sceneObjects[i].vertices = vertices;
 			
@@ -323,7 +322,13 @@ namespace RenderEngine
 		if(texCoord != nullptr)
 			delete[] texCoord;
 		
-
+		objectDataList.clear();
+		objectLineStart.clear();  
+		fileLines.clear(); 
+		
+		vertexList.clear();
+		normalList.clear();
+		texCoordList.clear();
 		return true;
 	}
 

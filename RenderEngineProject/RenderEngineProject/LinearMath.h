@@ -9,8 +9,8 @@
 
 namespace RenderEngine
 {
-	const float PI = 3.14159f;
-	const float EPSILON = 0.0000001f;
+	const double PI = 3.14159;
+	const float EPSILON = 0.00001f;
 
 	///////////////////////////////////////////////////
 	//Vector maths
@@ -61,14 +61,70 @@ namespace RenderEngine
 	//Vector * Matrix maths
 	///////////////////////////////////////////////////
 
-	Vector3D Vec3MultiMat4x4(Matrix4x4& matrix,Vector3D& vector);
+	Vector3D Vec3MultiMat4x4(Matrix4x4& matrix,const Vector3D& vector);
 
-	Vector4D Vec3Vec4MultiMat4x4(Matrix4x4& matrix,Vector3D& vector);
+	Vector4D Vec3Vec4MultiMat4x4(Matrix4x4& matrix,const Vector3D& vector);
 
-	Vector4D Vec4MultiMat4x4(Matrix4x4& matrix,Vector4D& vector);
+	Vector4D Vec4MultiMat4x4(Matrix4x4& matrix,const Vector4D& vector);
 
-	void Vec3MultiMat4x4(Vector3D& dest, Matrix4x4& matrix,Vector3D& vector);
+	void Vec3MultiMat4x4(Vector3D& dest, Matrix4x4& matrix,const Vector3D& vector);
 
-	void Vec4MultiMat4x4(Vector4D& dest, Matrix4x4& matrix,Vector4D& vector);
+	void Vec4MultiMat4x4(Vector4D& dest, Matrix4x4& matrix, const Vector4D& vector);
 
+	#undef min
+	#undef max
+
+	template<class T>
+	inline T max(T a, T b)
+	{
+		return a > b ? a : b;
+	}
+
+	template<class T>
+	inline T min(T a, T b) 
+	{
+		return a < b ? a : b;
+	}
+
+	template<class T>
+	inline T max(T a, T b, T c)
+	{
+		return a > b ? (a > c ? a : c) : (b > c ? b : c);
+	}
+
+	template<class T>
+	inline T min(T a, T b, T c)
+	{
+		return a < b ? (a < c ? a : c) : (b < c ? b : c);
+	}
+
+	inline int iround(float x)
+	{
+		int t;
+
+		__asm
+		{
+			fld   x
+			fistp t
+		}
+
+		return t;
+	}
+
+	inline int ifloor(float x)
+	{
+		const float h = 0.5f;
+
+		int t;
+
+		__asm
+		{
+			fld   x
+			fsub	h
+			fistp t
+		}
+
+		return t;
+	}
+	
 }

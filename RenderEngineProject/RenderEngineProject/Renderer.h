@@ -5,6 +5,7 @@
 #include"Rasterizer.h"
 #include"Camera.h"
 #include"ImporterOBJ.h"
+#include"HRTimer.h"
 
 namespace RenderEngine
 {
@@ -34,5 +35,9 @@ namespace RenderEngine
 		Rasterizer *m_rasterizer;
 		Matrix4x4* m_viewTransMatrix;
 		ImporterOBJ* m_importer;
+		HRTimer* m_HRTimer;
+		double m_elapsedSeconds;
+		double m_yDegrees;
+		const float m_yDegreesIncre;
 	};
 }

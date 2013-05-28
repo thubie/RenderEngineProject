@@ -1,11 +1,10 @@
 #include"LinearMath.h"
 
 //#define PI 3.14159f
-//#define EPSILON 0.0000001f
+//#define EPSILON 0.000000001f
 
 namespace RenderEngine
 {
-	
 
 	///////////////////////////////////////////////////
 	//Vector maths
@@ -42,7 +41,6 @@ namespace RenderEngine
 		Dest.m_y = (operand.m_z * operand2.m_x) - (operand.m_x * operand2.m_z);
 		Dest.m_z = (operand.m_x * operand2.m_y) - (operand.m_y * operand2.m_x);
 	}
-
 
 	//Cross product answer will be written to Vec4 Dest
 	void CrossProduct(Vector4D& Dest, const Vector4D& operand, const Vector4D& operand2)
@@ -175,12 +173,20 @@ namespace RenderEngine
 	{
 		memset(matrix.m_matrix,0,(16 * sizeof(float)));
 
+		//Column one info
+		float radian = yRot * (PI/180.0);
+		float sinVal = sin(radian);
+		float cosVal = cos(radian);
+		matrix.m_matrix[0][0] = cosVal;
+		matrix.m_matrix[0][2] = (-1.0 * sinVal);
+		matrix.m_matrix[2][0] = sinVal;
+		matrix.m_matrix[2][2] = cosVal;
+		
 		matrix.m_matrix[1][1] = 1;
+		
+		
 		matrix.m_matrix[3][3] = 1;
-		matrix.m_matrix[0][0] = cos(yRot * (PI/180.0f));;
-		matrix.m_matrix[1][0] = sin(yRot * (PI/180.0f));;	
-		matrix.m_matrix[2][0] = -1 * sin(yRot * (PI/180.0f));
-		matrix.m_matrix[2][2] = cos(yRot * (PI/180.0f));
+				
 	}
 
 	void RotationZMatrix(Matrix4x4& matrix,float zRot)
@@ -209,7 +215,7 @@ namespace RenderEngine
 	//Vector * Matrix maths (Column major!!!)
 	///////////////////////////////////////////////////
 
-	Vector3D Vec3MultiMat4x4(Matrix4x4& matrix,Vector3D& vector)
+	Vector3D Vec3MultiMat4x4(Matrix4x4& matrix,const Vector3D& vector)
 	{
 		Vector3D temp; 
 		temp.m_x = (matrix.m_matrix[0][0] * vector.m_x) + (matrix.m_matrix[1][0] * vector.m_y) + (matrix.m_matrix[2][0] * vector.m_z)  + (matrix.m_matrix[3][0] * 1); 
@@ -220,7 +226,7 @@ namespace RenderEngine
 	}
 
 	//Input vector3d will give as output a Vector4D
-	Vector4D Vec3Vec4MultiMat4x4(Matrix4x4& matrix,Vector3D& vector)
+	Vector4D Vec3Vec4MultiMat4x4(Matrix4x4& matrix,const Vector3D& vector)
 	{
 		Vector4D temp; 
 		temp.m_x = (matrix.m_matrix[0][0] * vector.m_x) + (matrix.m_matrix[1][0] * vector.m_y) + (matrix.m_matrix[2][0] * vector.m_z)  + (matrix.m_matrix[3][0] * 1); 
@@ -230,7 +236,7 @@ namespace RenderEngine
 		return temp;
 	}
 
-	Vector4D Vec4MultiMat4x4(Matrix4x4& matrix,Vector4D& vector)
+	Vector4D Vec4MultiMat4x4(Matrix4x4& matrix,const Vector4D& vector)
 	{
 		Vector4D temp; 
 		temp.m_x = (matrix.m_matrix[0][0] * vector.m_x) + (matrix.m_matrix[1][0] * vector.m_y) + (matrix.m_matrix[2][0] * vector.m_z)  + (matrix.m_matrix[3][0] * vector.m_w); 

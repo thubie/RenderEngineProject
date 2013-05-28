@@ -15,6 +15,7 @@ namespace RenderEngine
 		void Shutdown();
 		void Flip();
 		Color *GetColorBuffer() const;
+		float *GetDepthBuffer() const;
 		void SetFrameBufferColor(Color,unsigned int buffNum);
 		int GetWidth() const;
 		int GetHeight() const;
@@ -26,7 +27,10 @@ namespace RenderEngine
 		HWND* m_hWindow; //Handle to the window where we want to present our frame.
 		Color* m_VPage1; //Framebuffer 1 for page flipping
 		Color* m_VPage2; //Framebuffer 2 for page flipping
+		float* m_ZBuffer1; //Z buffer1
+		float* m_ZBuffer2; //Z buffer2
 		Color* m_CurrentBackBuffer; //FrameBuffer we are working with
+		float* m_CurrentZbuffer; //Current zbuffer;
 		unsigned char m_bitmapBuf[sizeof(BITMAPINFOHEADER) + 12];  //DIBmapBuffer to store bitmapinfoheader.
 		BITMAPINFO &m_bitmapInfo;	//Struct to describe bitmapInfo.
 		BITMAPINFOHEADER &m_bitmapInfoHeader; //Struct to describe BitmapInfoHeader.
