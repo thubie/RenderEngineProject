@@ -262,4 +262,24 @@ namespace RenderEngine
 		dest.m_z = (matrix.m_matrix[0][2] * vector.m_x) + (matrix.m_matrix[1][2] * vector.m_y) + (matrix.m_matrix[2][2] * vector.m_z)  + (matrix.m_matrix[3][2] * vector.m_w); 
 		dest.m_w = (matrix.m_matrix[0][3] * vector.m_x) + (matrix.m_matrix[1][3] * vector.m_y) + (matrix.m_matrix[2][3] * vector.m_z)  + (matrix.m_matrix[3][3] * vector.m_w);
 	}
+
+	void SwapVertices(Vertex v1,Vertex v2)
+	{
+		Vertex temp;
+		temp.position = v2.position;
+		v2.position = v1.position;
+		v1.position = temp.position;
+
+		temp.normal = v2.normal;
+		v2.normal = v1.normal;
+		v1.normal = temp.normal;
+
+		temp.diffuse = v2.diffuse;
+		v2.diffuse = v1.diffuse;
+		v1.diffuse = temp.diffuse;
+
+		temp.uv = v2.uv;
+		v2.uv = v1.uv;
+		v1.uv = temp.uv;
+	}
 }

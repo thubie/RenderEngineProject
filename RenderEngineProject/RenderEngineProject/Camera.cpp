@@ -78,7 +78,8 @@ namespace RenderEngine
 	{
 		Matrix4x4 camTransformMatrix;
 		Matrix4x4 camAxisMatrix;
-
+		if(m_position.m_z == 0.0)
+			m_position.m_z += EPSILON;
 		//Compute canonical axis
 		LookAtToAxes(m_position,m_viewTarget,m_upVector,m_uAxis,m_vAxis,m_wAxis);
 
@@ -99,7 +100,7 @@ namespace RenderEngine
 		m_perspectiveMatrix.SetColumn(1, ((2 * m_nearPlane) / (m_right - m_left)), 0, 0, 0);
 		m_perspectiveMatrix.SetColumn(2, 0,((2 * m_nearPlane) / (m_top - m_bottom)) , 0, 0);
 		m_perspectiveMatrix.SetColumn(3, ((m_left + m_right)/(m_left - m_right)), ((m_bottom + m_top) / (m_bottom - m_top)),((m_nearPlane + m_farPlane) / (m_farPlane - m_nearPlane)),1);
-		m_perspectiveMatrix.SetColumn(4, 0, 0, (( 1.0f * ((2 * m_farPlane * m_nearPlane)) / (m_farPlane - m_nearPlane))), 0);
+		m_perspectiveMatrix.SetColumn(4, 0, 0, 1 * (2 * m_farPlane * m_nearPlane) / (m_farPlane - m_nearPlane), 0);
 	}
 
 }

@@ -42,12 +42,12 @@ namespace RenderEngine
 		//camera data and initialization  encapsulate and put in windowapp
 		Vector3D viewTarget(0.0f,0.0,0.0f);
 		Vector3D upDirection(0.0f,1.0f,0.0f); 
-		Vector3D cameraPosition(0.0,3.0f,0.000001f);
+		Vector3D cameraPosition(0.2,1.0f,1.0f);
 
 		float fov = PI / 2.0f;
 		float aspectRatio = 16.0f / 9.0f;
-		float nearPlane = -0.01f;
-		float farPlane = -100.0f;
+		float nearPlane = -0.1f;
+		float farPlane = -1000.0f;
 
 		m_camera = new Camera(cameraPosition,viewTarget,upDirection,fov,aspectRatio,nearPlane,farPlane,m_frameWidth,m_frameHeight);
 		if(m_camera == nullptr)
@@ -57,7 +57,7 @@ namespace RenderEngine
 		m_camera->Initialize();
 		m_viewTransMatrix = m_camera->ComputeViewTransformMatrix();
 
-		m_importer = new ImporterOBJ("plane.obj");
+		m_importer = new ImporterOBJ("cube.obj");
 		if(m_importer == nullptr)
 		{
 			return false;
@@ -145,6 +145,7 @@ namespace RenderEngine
 		Vertex endpoints[3];
 		Vertex* objectVertexData;
 		Face* objectIndices;
+		Vector4D test;
 		m_rasterizer->SetRenderTargetBuffer( m_renderTarget->GetColorBuffer());
 		m_rasterizer->SetZBuffer(m_renderTarget->GetDepthBuffer());
 
@@ -175,20 +176,20 @@ namespace RenderEngine
 					endpoints[k].normal = endpoints[k].normal / endpoints[k].position.m_w;
 					//endpoints[k].uv.u /= endpoints[k].position.m_w;
 					//endpoints[k].uv.v /= endpoints[k].position.m_w;
+					endpoints[k].diffuse = Color(255,255,0,0);
 					endpoints[k].diffuse = endpoints[k].diffuse / endpoints[k].position.m_w;
-					endpoints[k].perW /= endpoints[k].position.m_w;
-					endpoints[k].position = endpoints[k].position / endpoints[k].position.m_w;
+					endpoints[k].perH /= endpoints[k].position.m_w;
+					endpoints[k].position = endpoints[k].position / endpoints[k].position.m_w;	
 					endpoints[k].position = Vec4MultiMat4x4(*viewportMatrix,endpoints[k].position);	
 				}
 				//backface Culling
-				float area = 0.5f * ((endpoints[2].position.m_x - endpoints[1].position.m_x) * 
-					(endpoints[0].position.m_y - endpoints[2].position.m_y) - (endpoints[2].position.m_y - endpoints[1].position.m_y) * 
-					(endpoints[0].position.m_x - endpoints[2].position.m_x));
+				float area = 0.5f * ((endpoints[0].position.m_x - endpoints[1].position.m_x) * (endpoints[2].position.m_y - endpoints[0].position.m_y) - 
+					(endpoints[0].position.m_y - endpoints[1].position.m_y) * (endpoints[2].position.m_x - endpoints[0].position.m_x));
 				if(area >= 0)
 					continue;
 
-				m_rasterizer->DrawTriangle(endpoints[0],endpoints[1],endpoints[2]);
-				//m_rasterizer->DrawTriangleLine(endpoints[0],endpoints[1],endpoints[2]);
+				m_rasterizer->DrawTriangleScanline(endpoints[0],endpoints[1],endpoints[2]);
+				m_rasterizer->DrawTriangleLine(endpoints[0],endpoints[1],endpoints[2]);
 			}
 		}
 		m_renderTarget->Flip();		

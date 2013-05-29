@@ -137,10 +137,7 @@ namespace RenderEngine
 		int maxx = (max(X1, X2, X3) + 0xF) >> 4;
 		int miny = (min(Y1, Y2, Y3) + 0xF) >> 4;
 		int maxy = (max(Y1, Y2, Y3) + 0xF) >> 4;
-		
-		Color* colorBuffer = m_colorBuffer +  miny * m_stride;
-		float* zBuffer;
-		zBuffer = m_ZBuffer + miny * m_stride;
+				
 		// Half-edge constants
 		int C1 = DY12 * X1 - DX12 * Y1;
 		int C2 = DY23 * X2 - DX23 * Y2;
@@ -155,9 +152,22 @@ namespace RenderEngine
 		int CY2 = C2 + DX23 * (miny << 4) - DY23 * (minx << 4);
 		int CY3 = C3 + DX31 * (miny << 4) - DY31 * (minx << 4);
 
-		float alpha;
-		float beta;
-		float gamma;
+		const float dx21 = 0.0625f * (X2 - X1);
+		const float dx32 = 0.0625f * (X2 - X3);
+		const float dx31 = 0.0625f * (X1 - X2);
+
+		const float dy21 = 0.0625f * (Y2 - Y1);
+		const float dy32 = 0.0625f * (Y3 - Y2);
+		const float dy31 = 0.0625f * (Y3 - Y1);
+
+		//Gradients 
+		const float C = -1  / (dx21 * dy31 - dx31 *dy21); //reciprocal of the gradient
+		
+		//Buffers
+		Color* colorBuffer = m_colorBuffer +  miny * m_stride;
+		float* zBuffer = m_ZBuffer + miny * m_stride;
+
+		
 
 		for(int y = miny; y < maxy; y++)
 		{
@@ -172,39 +182,28 @@ namespace RenderEngine
 					Color red(255,0,0,0);
 					Color blue(0,0,255,0);
 
-					float norm = (CX1) + (CX2) + (CX3);
-					alpha = CX1  / norm;
-					beta  = CX2  / norm;
-					gamma = CX3  / norm;
-					float d = (v2.perW * v3.perW) + (( v3.perW * beta) * (v1.perW - v2.perW)) +(( v2.perW * gamma) * (v1.perW - v3.perW));
-					float perwbeta  = (v1.perW * v3.perW * beta) / d;
-					float perwgamma = (v1.perW * v2.perW * gamma) / d;
-					float perwalpha  = 1 - perwbeta - perwgamma; 
-					float u = (v1.uv.u * perwalpha ) + (v2.uv.u * perwbeta ) + (v3.uv.u * perwgamma);
-					float v = (v1.uv.v * perwalpha ) + (v2.uv.v * perwbeta ) + (v3.uv.v * perwgamma);
-					//u = u + 0.5;
-					//v = v + 0.5;
-
+					//float oneOverz = 1 / xZ;
+					//float u = (xU / oneOverz );
+					//float v = (xV / oneOverz );
+				
 					//Checkerboard texture
-					int i1 = ifloor(u * 2);
-					int i2 = ifloor(v * 2);
+					/*int i1 = (u * 2);
+					int i2 = (v * 2);
 					int cell = (i1 + i2) % 2;
-					if(cell == 0)
-						colorBuffer[x] = red;
-					else
-						colorBuffer[x] = blue;
-					/*colorBuffer[x].m_r = (v1.diffuse.m_r * alpha + v2.diffuse.m_r * beta + v3.diffuse.m_r * gamma)/ perw;
-					colorBuffer[x].m_g = (v1.diffuse.m_g * alpha + v2.diffuse.m_g * beta + v3.diffuse.m_g * gamma)/ perw;
-					colorBuffer[x].m_b = (v1.diffuse.m_b * alpha + v2.diffuse.m_b * beta + v3.diffuse.m_b * gamma)/ perw;
-					colorBuffer[x].m_a = (v1.diffuse.m_a * alpha + v2.diffuse.m_a * beta + v3.diffuse.m_a * gamma)/ perw;*/
+					if(cell == 0)*/
+					colorBuffer[x] = red;
+					/*else
+						colorBuffer[x] = blue;*/
 				}
 				CX1 -= FDY12;
 				CX2 -= FDY23;
-				CX3 -= FDY31;
+				CX3 -= FDY31;				
+				
 			}
 			CY1 += FDX12;
 			CY2 += FDX23;
 			CY3 += FDX31;
+			
 			colorBuffer += m_stride;
 			zBuffer += m_stride;
 		}
@@ -302,6 +301,338 @@ namespace RenderEngine
 		DrawLine(x3,y3,x1,y1,line);
 	}
 	
+	void Rasterizer::DrawTriangleScanline(const Vertex &v1, const Vertex &v2, const Vertex &v3)
+	{
+		Vertex V1 = v1;
+		Vertex V2 = v2;
+		Vertex V3 = v3;
+
+		// Sort: V1 top, V2 middle, V3 bottom
+		if(V1.position.m_y > V3.position.m_y) 
+			SwapVertices(V1, V3);
+		if(V2.position.m_y > V3.position.m_y) 
+			SwapVertices(V2, V3);
+		if(V1.position.m_y > V2.position.m_y) 
+			SwapVertices(V1, V2);
+
+		//28.4 fixed point coordinates
+		const int Y1 = iround(16.0f * V1.position.m_y);
+		const int Y2 = iround(16.0f * V2.position.m_y);
+		const int Y3 = iround(16.0f * V3.position.m_y);
+
+		const int X1 = iround(16.0f * V1.position.m_x);
+		const int X2 = iround(16.0f * V2.position.m_x);
+		const int X3 = iround(16.0f * V3.position.m_x);
+
+		//Deltas
+		const int DX12 = X2 - X1; 
+		const int DX13 = X3 - X1;
+		const int DX23 = X3 - X2;
+
+		const int DY12 = Y2 - Y1; 
+		const int DY13 = Y3 - Y1;
+		const int DY23 = Y3 - Y2;
+
+		const int FDX12 = DX12 << 4; 
+		const int FDX13 = DX13 << 4;
+		const int FDX23 = DX23 << 4;
+
+		const int FDY12 = DY12 << 4; 
+		const int FDY13 = DY13 << 4;
+		const int FDY23 = DY23 << 4;
+
+		const float Dx12 = 0.0625f * DX12;
+		const float Dx13 = 0.0625f * DX13;
+
+		const float Dy12 = 0.0625f * DY12;
+		const float Dy13 = 0.0625f * DY13;
+
+		//Biggest scan line the one in the on height of Y2
+		const int X0 = ceilDiv(DX13 * (Y2 - Y1) + X1 * DY13,DY13);
+
+		//top,middle and bottom
+		const int y1 = ceilInt4(Y1);
+		const int y2 = ceilInt4(Y2);
+		const int y3 = ceilInt4(Y3);
+
+		Color* colorBuffer = m_colorBuffer +  y1 * m_stride;
+		//float* zBuffer = zBuffer + y1 * m_stride;
+
+		//Gradient
+		const float C = -1 / (Dx12 * Dy13 - Dx13 * Dy12);
+
+		//Depth
+		const float Dz12 = V2.position.m_z - V1.position.m_z;
+		const float Dz13 = V3.position.m_z - V1.position.m_z;
+		float dz_dx = C * (Dz13 * Dy12 - Dz12 * Dy13);
+		float dz_dy = C * (Dz12 * Dx13 - Dz13 * Dx12);
+
+		//W value
+		const float Dw12 = V2.position.m_z - V1.position.m_z;
+		const float Dw13 = V3.position.m_z - V1.position.m_z;
+		float dw_dx = C * (Dw13 * Dy12 - Dw12 * Dy13);
+		float dw_dy = C * (Dw12 * Dx13 - Dw13 * Dx12);
+
+		//U coord
+		const float Du12 = v2.uv.u - v1.uv.u;
+		const float Du13 = v3.uv.u - v1.uv.u;
+		float du_dx = C * (Du13 * Dy12 - Du12 * Dy13);
+		float du_dy = C * (Du12 * Dx13 - Du13 * Dx12);
+
+		//V coord
+		const float Dv12 = v2.uv.v - v1.uv.v;
+		const float Dv13 = v3.uv.v - v1.uv.v;
+		float dv_dx = C * (Dv13 * Dy12 - Dv12 * Dx13);
+		float dv_dy = C * (Dv12 * Dy13 - Dv13 * Dx12);
+
+		// Quotient 
+		const int Q12 = floorDiv(FDX12, FDY12);
+		const int Q13 = floorDiv(FDX13, FDY13);
+		const int Q23 = floorDiv(FDX23, FDY23);
+
+		// Remainder
+		const int R12 = floorMod(FDX12, FDY12);
+		const int R13 = floorMod(FDX13, FDY13);
+		const int R23 = floorMod(FDX23, FDY23);
+
+		int ld; int rd;   // error-term
+		int lx; int rx;   // start x and end x;   
+		int lQ; int rQ;   // edge-step
+		int lR; int rR;   // error-step
+		int lD; int rD;   // error-overflow
+
+		const int tile = 2;
+
+		//Starting values
+		float z;
+		float w;
+
+		float u;
+		float v;
+		
+		//Edge step values
+		float zS;
+		float wS;
+		float uS;
+		float vS;
+
+		// Prestep
+		float Dx;
+		float Dy;
+
+		if(X2 < X0)
+		{
+			lx = ceilDiv(DX12 * (ceilFix4(Y1) - Y1) + X1 * DY12, FDY12);
+			ld = ceilMod(DX12 * (ceilFix4(Y1) - Y1) + X1 * DY12, FDY12);
+			rx = ceilDiv(DX13 * (ceilFix4(Y1) - Y1) + X1 * DY13, FDY13);
+			rd = ceilMod(DX13 * (ceilFix4(Y1) - Y1) + X1 * DY13, FDY13);
+			lQ = Q12;   rQ = Q13;
+			lR = R12;   rR = R13;
+			lD = FDY12; rD = FDY13;
+			Dx = 0.0625f * (float)((lx << 4) - X1);
+			Dy = 0.0625f * (float)((y1 << 4) - Y1);
+
+			z = v1.position.m_z + Dx * dz_dx + Dy * dz_dy;
+			zS = (float)lQ * dz_dx + dz_dy;
+
+			w = v1.position.m_w + Dx * dw_dx + Dy * dw_dy;
+			wS = (float)lQ * dw_dx + dw_dy;
+
+			u = v1.uv.u + Dx * du_dx + Dy * du_dy;
+			uS = (float)lQ * du_dx + du_dy;
+
+			v = V1.uv.v + Dx * dv_dx + Dy * dv_dy;
+			vS = (float)lQ * dv_dx + dv_dy;
+		}
+		else
+		{
+			lx = ceilDiv(DX13 * (ceilFix4(Y1) - Y1) + X1 * DY13, FDY13);
+			ld = ceilMod(DX13 * (ceilFix4(Y1) - Y1) + X1 * DY13, FDY13);
+			rx = ceilDiv(DX12 * (ceilFix4(Y1) - Y1) + X1 * DY12, FDY12);
+			rd = ceilMod(DX12 * (ceilFix4(Y1) - Y1) + X1 * DY12, FDY12);
+			lQ = Q13;   rQ = Q12;
+			lR = R13;   rR = R12;
+			lD = FDY13; rD = FDY12;
+			Dx = 0.0625f * (float)((lx << 4) - X1);
+			Dy = 0.0625f * (float)((y1 << 4) - Y1);
+
+			z = v1.position.m_z + Dx * dz_dx + Dy * dz_dy;
+			zS = (float)lQ * dz_dx + dz_dy;
+
+			w = v1.position.m_w + Dx * dw_dx + Dy * dw_dy;
+			wS = (float)lQ * dw_dx + dw_dy;
+
+			u = v1.uv.u + Dx * du_dx + Dy * du_dy;
+			uS = (float)lQ * du_dx + du_dy;
+
+			v = V1.uv.v + Dx * dv_dx + Dy * dv_dy;
+			vS = (float)lQ * dv_dx + dv_dy;
+		}
+
+		//Top to middle
+		for(int y = y1; y < y2; y++)
+		{
+			u = uS;
+			v = vS;
+
+			for(int x = lx; x < rx; x++)
+			{
+				Color red(255,0,0,0);
+				Color blue(0,0,255,0);
+				//Checkerboard texture
+				int i1 = (u * tile);
+				int i2 = (v * tile);
+				int cell = (i1 + i2) % 2;
+				if(cell == 0)
+					colorBuffer[x] = red;
+				else
+					colorBuffer[x] = blue;
+				u += du_dx;
+				v += dv_dx;				
+			}
+			colorBuffer += m_stride;
+
+			//Increase values
+			lx += lQ;
+			ld += lR;
+
+			z += zS;
+			w += wS;
+			
+			u += uS;
+			v += vS;
+
+
+			if(ld > 0)
+			{
+				ld -= lD;
+				lx += 1;
+
+				//extra step
+				z += dz_dx;
+				w += dw_dx; 
+				u += du_dx;
+				v += dv_dx;
+			}
+
+			rx += rQ;
+			rd += rR;
+
+			if(rd > 0)
+			{
+				rd -= rD;
+				rx += 1;
+			}
+		}
+
+		if(X2 < X0)
+		{
+			lx = ceilDiv(DX23 * (ceilFix4(Y2) - Y2) + X2 * DY23, FDY23);
+			ld = ceilMod(DX23 * (ceilFix4(Y2) - Y2) + X2 * DY23, FDY23);
+			rx = ceilDiv(DX13 * (ceilFix4(Y2) - Y1) + X1 * DY13, FDY13);
+			rd = ceilMod(DX13 * (ceilFix4(Y2) - Y1) + X1 * DY13, FDY13);
+			lQ = Q23;
+			lR = R23;
+			lD = FDY23;
+		
+			Dx = 0.0625f * (float)((lx << 4) - X2);
+			Dy = 0.0625f * (float)((y2 << 4) - Y2);
+
+			z = v2.position.m_z + Dx * dz_dx + Dy * dz_dy;
+			zS = (float)lQ * dz_dx + dz_dy;
+
+			w = v2.position.m_w + Dx * dw_dx + Dy * dw_dy;
+			wS = (float)lQ * dw_dx + dw_dy;
+
+			u = v2.uv.u + Dx * du_dx +  du_dy;
+			uS = (float)lQ * du_dx + du_dy;
+
+			v = V2.uv.v + Dx * dv_dx +  dv_dy;
+			vS = (float)lQ * dv_dx + dv_dy;
+		}
+		else
+		{
+			rx = ceilDiv(DX23 * (ceilFix4(Y2) - Y2) + X2 * DY23, FDY23);
+			rd = ceilMod(DX23 * (ceilFix4(Y2) - Y2) + X2 * DY23, FDY23);
+
+			rQ = Q23;
+			rR = R23;
+			rD = FDY23;
+		}
+
+		//Middle to bottom
+		for(int y = y2; y < y3; y++)
+		{
+			u = uS;
+			v = vS;
+
+			for(int x = lx; x < rx; x++)
+			{
+				Color red(255,0,0,0);
+				Color blue(0,0,255,0);
+				//Checkerboard texture
+				int i1 = (u * tile);
+				int i2 = (v * tile);
+				int cell = (i1 + i2) % 2;
+				if(cell == 0)
+					colorBuffer[x] = red;
+				else
+					colorBuffer[x] = blue;
+
+				u += du_dx;
+				v += dv_dx;
+			}
+
+			colorBuffer += m_stride;
+			lx += lQ;
+			ld += lR;
+			
+			u += uS;
+			v += vS;
+
+			if(ld > 0)
+			{
+				ld -= lD;
+				lx += 1;
+				
+				//extra step
+				z += dz_dx;
+				w += dw_dx; 
+				u += du_dx;
+				v += dv_dx;
+			}
+
+			rx += rQ;
+			rd += rR;
+
+			if(rd > 0)
+			{
+				rd -= rD;
+				rx += 1;
+			}
+		}
+	}
+
+	void Rasterizer::SwapVertices(Vertex& v1,Vertex& v2)
+	{
+		Vertex temp;
+		temp.position = v1.position;
+		v1.position = v2.position;
+		v2.position = temp.position;
+
+		temp.normal = v1.normal;
+		v1.normal = v2.normal;
+		v2.normal = temp.normal;
+
+		temp.diffuse = v1.diffuse;
+		v1.diffuse = v2.diffuse;
+		v2.diffuse = temp.diffuse;
+
+		temp.uv = v1.uv;
+		v1.uv = v2.uv;
+		v2.uv = temp.uv;
+	}
+
 	float Rasterizer::Orient2D(const float x1, const float y1, const float x2, const float y2,const float x3, const float y3)
 	{
 		return ((x2 - x1) * (y3 - y1)) - ((y2 - y1) * (x3 - x1));

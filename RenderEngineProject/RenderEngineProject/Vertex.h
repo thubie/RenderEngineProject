@@ -16,13 +16,13 @@ namespace RenderEngine
 	public:
 		Vertex()
 		{
-			perW = 1.0f;
+			perH = 1.0f;
 		};
 		Vector4D position;
 		Vector3D normal;
 		Color  diffuse;
 		TexCoord uv;
-		float perW;
+		float perH;
 	};
 	
 }

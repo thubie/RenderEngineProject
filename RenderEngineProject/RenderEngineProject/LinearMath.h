@@ -6,6 +6,7 @@
 #include"Vector4D.h"
 #include"Matrix4x4.h"
 #include"Vector3D.h"
+#include"Vertex.h"
 
 namespace RenderEngine
 {
@@ -71,6 +72,8 @@ namespace RenderEngine
 
 	void Vec4MultiMat4x4(Vector4D& dest, Matrix4x4& matrix, const Vector4D& vector);
 
+
+	//functions from internet forgot source...
 	#undef min
 	#undef max
 
@@ -126,5 +129,130 @@ namespace RenderEngine
 
 		return t;
 	}
-	
+
+	inline int ceilFix4(int x)
+	{
+		return (x + 0xF) & 0xFFFFFFF0;
+	}
+
+	inline int ceilInt4(int x)
+	{
+		return (x + 0xF) >> 4;
+	}
+
+	// Mathematically correct flooring divide
+	inline int floorDiv(int a, int b)
+	{
+		if(b == 0)
+		{
+			return 0x80000000;   // Prevent exception
+		}
+
+		int q;   // Quotient
+		int r;   // Remainder
+
+		if(a >= 0)
+		{
+			q = a / b;
+		}
+		else
+		{
+			q = -(-a / b);
+			r = -a % b;
+
+			if(r)
+			{
+				q--;
+			}
+		}
+
+		return q;
+	}
+
+	// Mathematically correct ceiling divide
+	inline int ceilDiv(int a, int b)
+	{
+		if(b == 0)
+		{
+			return 0x80000000;   // Prevent exception
+		}
+
+		a += - 1 + b;
+
+		int q;   // Quotient
+		int r;   // Remainder
+
+		if(a >= 0)
+		{
+			q = a / b;
+		}
+		else
+		{
+			q = -(-a / b);
+			r = -a % b;
+
+			if(r)
+			{
+				q--;
+			}
+		}
+
+		return q;
+	}
+
+	// Mathematically correct flooring modulo
+	inline int floorMod(int a, int b)
+	{
+		if(b == 0)
+		{
+			return 0x80000000;   // Prevent exception
+		}
+
+		int r;   // Remainder
+
+		if(a >= 0)
+		{
+			r = a % b;
+		}
+		else
+		{
+			r = -a % b;
+
+			if(r)
+			{
+				r = b - r;
+			}
+		}
+
+		return r;
+	}
+
+	// Mathematically correct ceiling modulo
+	inline int ceilMod(int a, int b)
+	{
+		if(b == 0)
+		{
+			return 0x80000000;   // Prevent exception
+		}
+
+		a += - 1 + b;
+
+		int r;   // Remainder
+
+		if(a >= 0)
+		{
+			r = a % b;
+		}
+		else
+		{
+			r = -a % b;
+
+			if(r)
+			{
+				r = b - r;
+			}
+		}
+
+		return r + 1 - b;
+	}
 }
