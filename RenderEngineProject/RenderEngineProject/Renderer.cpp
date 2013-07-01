@@ -37,12 +37,11 @@ namespace RenderEngine
 		{
 			return false;
 		}
-
-			
-		//camera data and initialization  encapsulate and put in windowapp
-		Vector3D viewTarget(0.0f,0.0,0.0f);
+	
+		//camera data and initialization 
+		Vector3D viewTarget(0.0f,0.0f,0.0f);
 		Vector3D upDirection(0.0f,1.0f,0.0f); 
-		Vector3D cameraPosition(0.2,1.0f,1.0f);
+		Vector3D cameraPosition(0.5f,0.5f,1.5f);
 
 		float fov = PI / 2.0f;
 		float aspectRatio = 16.0f / 9.0f;
@@ -57,7 +56,7 @@ namespace RenderEngine
 		m_camera->Initialize();
 		m_viewTransMatrix = m_camera->ComputeViewTransformMatrix();
 
-		m_importer = new ImporterOBJ("cube.obj");
+		m_importer = new ImporterOBJ("testScene.obj");
 		if(m_importer == nullptr)
 		{
 			return false;
@@ -103,7 +102,6 @@ namespace RenderEngine
 
 		if(m_rasterizer != nullptr)
 		{
-			//m_rasterizer->Shutdown();
 			delete m_rasterizer;
 			m_rasterizer = nullptr;
 		}
@@ -113,11 +111,7 @@ namespace RenderEngine
 			m_renderTarget->Shutdown();
 			delete m_renderTarget;
 			m_renderTarget = nullptr;
-		}
-
-		
-		
-		
+		}	
 	}
 
 	bool Renderer::NextFrame()
@@ -173,9 +167,6 @@ namespace RenderEngine
 
 				for(k = 0; k < 3; ++k)
 				{
-					endpoints[k].normal = endpoints[k].normal / endpoints[k].position.m_w;
-					//endpoints[k].uv.u /= endpoints[k].position.m_w;
-					//endpoints[k].uv.v /= endpoints[k].position.m_w;
 					endpoints[k].diffuse = Color(255,255,0,0);
 					endpoints[k].diffuse = endpoints[k].diffuse / endpoints[k].position.m_w;
 					endpoints[k].perH /= endpoints[k].position.m_w;
@@ -187,8 +178,8 @@ namespace RenderEngine
 					(endpoints[0].position.m_y - endpoints[1].position.m_y) * (endpoints[2].position.m_x - endpoints[0].position.m_x));
 				if(area >= 0)
 					continue;
-
-				m_rasterizer->DrawTriangleScanline(endpoints[0],endpoints[1],endpoints[2]);
+				
+				//m_rasterizer->DrawTriangleScanline(endpoints[0],endpoints[1],endpoints[2]);
 				m_rasterizer->DrawTriangleLine(endpoints[0],endpoints[1],endpoints[2]);
 			}
 		}

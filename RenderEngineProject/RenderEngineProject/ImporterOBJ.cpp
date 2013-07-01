@@ -1,10 +1,8 @@
 #include"ImporterOBJ.h"
 
-
-
 namespace RenderEngine
 {
-	ImporterOBJ::ImporterOBJ() : objectDataList(std::vector<ObjectData>()),objectLineStart(std::vector<int>()), fileLines(std::vector<std::string>())  
+	ImporterOBJ::ImporterOBJ() : objectDataList(std::vector<ObjectData>(2000)),objectLineStart(std::vector<int>(2000)), fileLines(std::vector<std::string>(2000))  
 	{
 		filename = nullptr;
 	}
@@ -336,6 +334,4 @@ namespace RenderEngine
 	{
 		return &sceneObjects;
 	}
-
-
 }

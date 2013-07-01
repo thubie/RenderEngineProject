@@ -101,6 +101,8 @@ namespace RenderEngine
 		return a < b ? (a < c ? a : c) : (b < c ? b : c);
 	}
 
+
+	//Code from internet forgot from where..
 	inline int iround(float x)
 	{
 		int t;

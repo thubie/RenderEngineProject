@@ -54,9 +54,6 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Vertex.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="VertexProcessor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -114,15 +111,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VertexProcessor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PixelProcessor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IndexBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">

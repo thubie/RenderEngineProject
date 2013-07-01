@@ -27,7 +27,7 @@ namespace RenderEngine
 		float f20(float x, float y, float x0, float y0, float x1, float y1);
 		float Orient2D(const float x1, const float y1, const float x2, const float y2,const float x3, const float y3);
 		void SwapVertices(Vertex& v1,Vertex& v2);
-
+	private:
 		Color* m_colorBuffer;
 		float* m_ZBuffer;
 		int m_stride;
